@@ -18,17 +18,14 @@ passport.use(
             clientID: '2550070455269720',
             clientSecret: '179afa9c4964481048dc34f718985a7c',
             callbackURL: 'http://localhost:8080/auth/facebook/callback',
-            profileFields: ['email', 'name']
+            profileFields: ['id', 'email', 'name']
         },
         function(accessToken, refreshToken, profile, done) {
-            const { email, first_name } = profile._json;
-            const userData = {
-                name: first_name,
-                email
-            };
-            console.log(userData)
-            new User(userData).save();
-            done(null, profile);
+            console.log(profile)
+            User.findOrCreate(profile, (err, user) => {
+                if (err) return done(err);
+                return done(err, user);
+            })
         }
     )
 );

@@ -58,14 +58,9 @@ app.post('/', (req, res, next) => {
 
     let userData = {
       name: req.body.name,
-      email: req.body.email
+      email: req.body.email,
+      pass: bcrypt.hashSync(req.body.pass, 10)
     }
-
-    bcrypt.hash(req.body.pass, 10, function(err, hash) {
-      if (err) return next(err);
-      userData.pass = hash;
-      next();
-    });
 
     User.create(userData, (err, user) => {
       if (err) return next(err);
@@ -95,10 +90,29 @@ app.post('/', (req, res, next) => {
 });
 
 app.get('/auth/facebook', passport.authenticate("facebook", { scope: ['email'] }));
-app.get('/auth/facebook/callback', passport.authenticate('facebook', {
+/* app.get('/auth/facebook/callback', passport.authenticate('facebook', {
   successMessage: 'USPELO BE',
   failureMessage: 'NEJE USPELO BE'
-}));
+})); */
+
+/* app.get('/auth/facebook/callback', (req, res, next) => {
+  passport.authenticate('facebook', (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.redirect('/');
+    req.login(user, (err) => {
+      if (err) return next(err);
+      name = req.user.name;
+      return res.redirect('/chats');
+    })
+  })
+}) */
+
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) => {
+  console.log(req.user)
+  name = req.user.name;
+  req.session.userId = req.user.id //iz nekog razloga emituje is_online pre učitavanja chat history bez ovoga???
+  res.redirect('/chat');
+})
 
 io.on('connection', (socket) => {
   socket.on('username', async () => {

@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
-        unique: true,
         required: true,
         trim: true
     },
@@ -17,11 +16,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         unique: true,
         trim: true
-    }/* ,
-    sender_id: { 
+    },
+    social_id: { 
         type: String,
-        required: true
-    } */
+        unique: true
+    }
 });
 
 /* UserSchema.pre('save', function(next) {
@@ -32,6 +31,23 @@ const UserSchema = new mongoose.Schema({
         next();
     });
 }); */
+
+let findOrCreate = function(data, callback) {
+    User.findOne({'social_id': data._json.id}, function(err, user) {
+        if(err) return callback(err);
+        if(user) return callback(err, user)
+        else {
+            const { id, email, first_name } = data._json;
+            const userData = {
+                social_id: id,
+                name: first_name,
+                email
+            };
+            let user = new User(userData).save();
+            callback(err, user);
+        }
+    })
+}
 
 UserSchema.statics.authenticate = function(email, pass, callback) {
     User.findOne({ email: email}).exec(function(err, user) {
@@ -49,4 +65,4 @@ UserSchema.statics.authenticate = function(email, pass, callback) {
 }
 
 let User = mongoose.model('User', UserSchema);
-module.exports = User;
+module.exports = { User, findOrCreate };
