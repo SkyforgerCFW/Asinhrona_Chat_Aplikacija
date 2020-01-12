@@ -32,18 +32,19 @@ const UserSchema = new mongoose.Schema({
     });
 }); */
 
-let findOrCreate = function(data, callback) {
-    User.findOne({'social_id': data._json.id}, function(err, user) {
+UserSchema.statics.findOrCreate = function(data, callback) {
+    User.findOne({'social_id': data.social_id}, function(err, user) {
         if(err) return callback(err);
         if(user) return callback(err, user)
         else {
-            const { id, email, first_name } = data._json;
-            const userData = {
-                social_id: id,
-                name: first_name,
-                email
-            };
-            let user = new User(userData).save();
+            //const { id, email, first_name } = data;
+            /* const userData = {
+                social_id: data[0],
+                name: data[1],
+                email: data[2]
+            }; */
+            console.log(data);
+            let user = new User(data).save();
             callback(err, user);
         }
     })
@@ -65,4 +66,4 @@ UserSchema.statics.authenticate = function(email, pass, callback) {
 }
 
 let User = mongoose.model('User', UserSchema);
-module.exports = { User, findOrCreate };
+module.exports = User;

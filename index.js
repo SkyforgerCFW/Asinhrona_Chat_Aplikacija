@@ -5,6 +5,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const passport = require('passport');
 const flash = require('connect-flash');
+const to = require('await-to-js');
 
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
@@ -30,13 +31,15 @@ app.use(session({
   secret: 'top-secret-chat',
   resave: true,
   saveUninitialized: false,
-  store: new MongoStore({ mongooseConnection: mongoose.connection })
+  //store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
 http.listen(8080, () => { console.log('listening on *:8080'); });
 /* GET home page. */
 app.get('/chat', function(req, res, next) {
-  res.render('index.ejs');
+  console.log(req.session)
+  if(!req.session.passport && !req.session.user) res.redirect('/');
+  else res.render('index.ejs');
 });
 
 app.get('/', (req, res, next) => {
@@ -65,7 +68,7 @@ app.post('/', (req, res, next) => {
     User.create(userData, (err, user) => {
       if (err) return next(err);
       else {
-        req.session.userId = user._id;
+        req.session.user = user;
         name = user.name;
         return res.redirect('/chat');
       }
@@ -77,7 +80,7 @@ app.post('/', (req, res, next) => {
         error.status = 401;
         return next(error);
       } else {
-        req.session.userId = user._id;
+        req.session.user = user;
         name = user.name;
         return res.redirect('/chat');
       }
@@ -108,21 +111,31 @@ app.get('/auth/facebook', passport.authenticate("facebook", { scope: ['email'] }
 }) */
 
 app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) => {
-  console.log(req.user)
   name = req.user.name;
-  req.session.userId = req.user.id //iz nekog razloga emituje is_online pre učitavanja chat history bez ovoga???
+  //req.session.userId = req.user.social_id //iz nekog razloga emituje is_online pre učitavanja chat history bez ovoga???
   res.redirect('/chat');
-})
+});
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+  name = req.user.name;
+  //req.session.userId = req.user.social_id;
+  res.redirect('/chat');
+});
 
 io.on('connection', (socket) => {
   socket.on('username', async () => {
     socket.username = name;
-    await Chat.find({}, (err, chats) => {
+    /* await Chat.find({}, (err, chats) => {
       if (err) console.log(err);
       chats.forEach(chat => {
         socket.emit('chat_message', '<strong>' + chat.sender + '</strong>: ' + chat.message + ' <i style="float: right">' + datetime.formatTime(chat.createdAt) + '</i>');
       });
-    });
+    }); */
+    await Chat.find({}).then(chats => {
+      chats.forEach(chat => {
+        socket.emit('chat_message', '<strong>' + chat.sender + '</strong>: ' + chat.message + ' <i style="float: right">' + datetime.formatTime(chat.createdAt) + '</i>');
+    })});
     io.emit('is_online', '<i>'+ socket.username + ' je ušao u chat <3</i>');
   });
 
