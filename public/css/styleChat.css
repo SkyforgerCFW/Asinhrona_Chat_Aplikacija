@@ -1,0 +1,40 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.navtext { color: white; }
+body { font: 13px Helvetica, Arial; }
+#chatForm { background: #bebfbf; padding: 3px; position: fixed; bottom: 0; width: 100%; border-color: #000; border-top-style: solid; border-top-width: 1px;}
+#chatForm input { border-style: solid; border-width: 0px; padding: 10px; width: 90%; margin: 0.5%; margin-left: 0.3%; border-radius: 25px; }
+#chatForm button { width: 8%; background: #2A72FC; color: white; border: none; padding: 10px; margin-left: 0.5%; border-radius:22px; }
+#chatForm button:hover { background: #215bc9; }
+#chatForm input:focus, #chatForm button:focus, .close:focus { outline: none; }
+#messages { list-style-type: none; margin: 0; padding: 0; }
+#messages li { padding: 5px 10px; }
+#messages li:nth-child(odd) { background: #eee; }
+#messages.highlight { border: 5px dashed purple; border-radius: 5px; }
+#overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0; 
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+}
+#dateForm{
+position: absolute;
+top: 50%;
+left: 50%; 
+/*font-size: 50px;*/
+color: white;
+transform: translate(-50%,-50%);
+-ms-transform: translate(-50%,-50%);
+}
+
+.h-scroll{
+    height: 90vh; /* %-height of the viewport */
+    position: fixed;
+    overflow-y: scroll;
+}

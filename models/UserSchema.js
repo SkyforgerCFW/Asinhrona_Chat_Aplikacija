@@ -33,7 +33,7 @@ const UserSchema = new mongoose.Schema({
 }); */
 
 UserSchema.statics.findOrCreate = function(data, callback) {
-    User.findOne({'social_id': data.social_id}, function(err, user) {
+    User.findOne({'social_id': data.social_id}, async function(err, user) {
         if(err) return callback(err);
         if(user) return callback(err, user)
         else {
@@ -43,8 +43,8 @@ UserSchema.statics.findOrCreate = function(data, callback) {
                 name: data[1],
                 email: data[2]
             }; */
-            console.log(data);
-            let user = new User(data).save();
+            //console.log(data);
+            let user = await new User(data).save();
             callback(err, user);
         }
     })
