@@ -42,7 +42,7 @@ socket.on('stop_typing', () => {
 
 function checkDel() {
     let pass = window.prompt('Ovo je TRAJNA operacija, da biste nastavili unesite tajnu šifru', 'Šifra');
-    if (pass == 'mudo') $('#del').submit();
+    if (pass == 'top-secret-pass') $('#del').submit();
     else alert('NETAČNA ŠIFRA!');
 }
 
